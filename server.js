@@ -1,33 +1,22 @@
-const http = require("http");
-const fs = require("fs");
+//DEPENDENCIES
+const express = require("express");
 
-const PORT = 8080;
+//Tells node we are creating an "express" server
+const app = express();
 
-// function to take a filepath and respond with html
-const renderHTML = (filePath, res) => {
-  return fs.readFile(`${__dirname}${filePath}`, (err, data) => {
-    if (err) throw err;
-    res.writeHead(200, { "Content-Type": "text/html" });
-    res.end(data);
-  });
-};
+//Sets initial port
+const PORT = process.env.PORT || 8080;
 
-const handleRequest = (req, res) => {
-  // Capture the url the request is made to
-  const path = req.url;
+// Sets up the Express app to handle data parsing
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-  // When we visit different urls, call the function with different arguments
-  switch (path) {
-    case "/notes":
-      return renderHTML(`/${path}.html`, res);
+// ROUTER
+// The below points our server to a series of "route" files.
+require("./routes/apiRoutes")(app);
+require("./routes/htmlRoutes")(app);
 
-    default:
-      return renderHTML("/index.html", res);
-  }
-};
-
-const server = http.createServer(handleRequest);
-
-server.listen(PORT, () => {
-  console.log(`Server is listening on Port: ${PORT}`);
+//LISTENER
+app.listen(PORT, () => {
+  console.log(`App listening on PORT:  ${PORT}`);
 });
