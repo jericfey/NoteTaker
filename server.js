@@ -3,14 +3,27 @@ const fs = require("fs");
 
 const PORT = 8080;
 
-const handleRequest = (req, res) => {
-  // Here we use the fs package to read our index.html file
-  fs.readFile(`${__dirname}/public/index.html`, (err, data) => {
+// function to take a filepath and respond with html
+const renderHTML = (filePath, res) => {
+  return fs.readFile(`${__dirname}${filePath}`, (err, data) => {
     if (err) throw err;
-    // We then respond to the client with the HTML page by specifically telling the browser that we are delivering an html file.
     res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
+};
+
+const handleRequest = (req, res) => {
+  // Capture the url the request is made to
+  const path = req.url;
+
+  // When we visit different urls, call the function with different arguments
+  switch (path) {
+    case "/notes":
+      return renderHTML(`/${path}.html`, res);
+
+    default:
+      return renderHTML("/index.html", res);
+  }
 };
 
 const server = http.createServer(handleRequest);
